@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.chrome.options import Options
 
-from webdriver_manager.chrome import ChromeDriverManager
+
+from webdriver_manager.firefox import GeckoDriverManager
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -57,7 +57,12 @@ options.add_experimental_option(
 
 options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Optional to suppress warnings
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
+GECKODRIVER_PATH="/home/nicknjihia/Downloads/geckodriver-v0.36.0-linux64/geckodriver"
+
+service = FirefoxService(executable_path=GECKODRIVER_PATH)
+
+#driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+driver = webdriver.Firefox(service=service)
 
 
 driver.set_page_load_timeout(60)

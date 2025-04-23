@@ -11,6 +11,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
+from selenium.common.exceptions import WebDriverException
+
 import json
 import time
 
@@ -365,6 +367,9 @@ for match in tournament_games:
                      exc_info=True)
 
     driver.refresh()
+    time.sleep(1)
+    driver.find_element("tag name", "body").send_keys(Keys.CONTROL, "r")
+    time.sleep(1)
 
     try:
         close_button = driver.find_element(By.XPATH, "//button[contains(@class, 'Button pBEmc')]")
@@ -375,6 +380,8 @@ for match in tournament_games:
         logger.error(f"Popup not present or popup didn't close."
                      f"\nSee Error: {err}\n\n", exc_info=True)
 
+    time.sleep(1)
+
     try:
         close_button = driver.find_element(By.XPATH, "//button[contains(@class, 'Button gTStrj')]")
         close_button.click()
@@ -384,44 +391,91 @@ for match in tournament_games:
         logger.error(f"'Add to Favourites' popup isn't present or the popup didn't close."
                      f"\nSee Error: {err}\n\n", exc_info=True)
 
-    driver.refresh()
-    time.sleep(2)
+    time.sleep(1)
     home_team_performance_api_url = f"/api/v1/team/{team_ids[0]}/performance"
 
     driver.find_element("tag name", "body").send_keys(Keys.CONTROL, "r")
     driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-    time.sleep(2)
+    time.sleep(1)
     driver.execute_script("window.scrollTo(0, 0);")
-    time.sleep(3)
+    time.sleep(2)
 
     log_entries_home_team = driver.get_log("performance")
+    count=0
+    for log_entry_ht in log_entries_home_team:
+        try:
+            logs = json.loads(log_entry_ht["message"])["message"]
+            if logs["method"] == "Network.responseReceived":
 
-    logs = [json.loads(log_entry_ht["message"])["message"] for log_entry_ht in log_entries_home_team]
+                api_path = logs["params"].get('headers',{}).get(':path','')
+                if api_path != '' and count <= 5:
+                    logger.debug(f"See example logs: {logs}")
+                else:
+                    pass
+                count+=1
 
-    for log in logs:
-        api_path = log["params"].get('headers',{}).get(':path','')
-        if home_team_performance_api_url == api_path:
-            logger.debug(f"📍✅   Match {home_team_performance_api_url}:---> {api_path}\n")
-            break
-        else:
-            logger.debug(f"❌ No match with API URL: {home_team_performance_api_url};\t{api_path}")
+                request_id = logs["params"]["requestId"]
+
+                for log in logs:
+                    if home_team_performance_api_url == api_path:
+                        logger.debug(f"📍✅   Match {home_team_performance_api_url} === {api_path}\n")
+
+                        # Get the response body using the matched request ID
+                        try:
+                            perf_res_body = driver.execute_cdp_cmd('Network.getResponseBody',{"requestId": request_id})
+                            print("BODY:", perf_res_body["body"])
+                        except WebDriverException as err:
+                            logger.error(f"😫 Response.body is null."
+                                         f"\nSee error:\n{err}", exc_info=True)
+                        except Exception as e:
+                            logger.error(f" Error encountered while attempting to retrieve"
+                                         f" and parse JSON from the API URL endpoint "
+                                         f"{home_team_performance_api_url}.\n"
+                                         f"\nSee error:\n{e}", exc_info=True)
+                        break
+
+                    else:
+                        logger.debug(f"❌ No match with API URL:"
+                                     f"{home_team_performance_api_url}\t!= {api_path}")
+
+        except Exception as e:
+            logger.error(f" Unexpected Error encountered."
+                         f" See Error below:\n{e}", exc_info=True)
 
 
+#    logs = [json.loads(log_entry_ht["message"])["message"] for log_entry_ht in log_entries_home_team]
+#
+#    for log in logs:
+#        api_path = log["params"].get('headers',{}).get(':path','')
+#        if home_team_performance_api_url == api_path:
+#            logger.debug(f"📍✅   Match {home_team_performance_api_url} === {api_path}\n")
+#            break
+#        else:
+#            logger.debug(f"❌ No match with API URL:"
+#                         f"{home_team_performance_api_url}\t!= {api_path}")
+#
 
     # The JSON output list needs to be reversed as the bottom values are the most recent matchups
     # Reverse in-place
 
-    #max_retries = 2  # Set the number of retries
-    #attempt = 0
+#    try:
+#        perf_res_body = driver.execute_cdp_cmd('Network.getResponseBody',{'requestId': log["params"]["requestId"]})
+#        log['body'] = perf_res_body
+#
+#    except WebDriverException as err:
+#        logger.error("😫 Response.body is null."
+#                     f"\nSee error:\n{err}", exc_info=True)
+#    except Exception as e:
+#        logger.error("😫 Failed to get JSON output from API"
+#                    f" {home_team_performance_api_url}."
+#                    f" See error:\n{e}", exc_info=True)
+#
 
-    try:
-        ht_prev_matches_json = json.loads(driver.execute_cdp_cmd('Network.getResponseBody',{'requestId': log['params']['requestId']})['body'])
-    except Exception as e:
-        logger.error("😫 Failed to get JSON output from API"
-                         f" {home_team_performance_api_url}."
-                         f" See error:\n{e}", exc_info=True)
 
-    ht_prev_matches_json = ht_prev_matches_json['events'].reverse()
+    ht_prev_matches_json = json.loads(perf_res_body)
+    ht_prev_matches_json = ht_prev_matches_json['events']
+    ht_prev_matches_json.reverse()
+
     ## The previous matches will be stored in arrays/lists of dictionaries, one array/list per home or away team - 2 arrays in total.
 
     ## [{'A/H': '<>', 'Result': '<W/D/L>', 'Scored': <num>, 'Conceded': <num>, 'Team Ranking': <num>, 'Opponent Rank': <num>}]
