@@ -190,7 +190,7 @@ for scheduled_games in events['events']:
         logger.error("Key not found -> category['country']['name']")
         continue
     except Exception as e:
-        logger.error(f"Tournament is likely irrelevent. Check error:\n{e}",
+        logger.error(f"Tournament is likely irrelevant. Check error:\n{e}",
                      exc_info=True )
 
 
@@ -363,8 +363,7 @@ for match in tournament_games:
 
     except Exception as err:
         logger.error(f"😫 Failure redirecting to {home_team_redirect_url}."
-                     "\nError:\t{err}\n",
-                     exc_info=True)
+                     f"\nError:\t{err}\n", exc_info=True)
 
     driver.refresh()
     time.sleep(1)
@@ -405,10 +404,14 @@ for match in tournament_games:
     for log_entry_ht in log_entries_home_team:
         try:
             logs = json.loads(log_entry_ht["message"])["message"]
-            if logs["method"] == "Network.responseReceived":
+            if (
+                logs["method"] == "Network.responseReceived"
+                or logs["method"] == "Network.requestWillBeSent"
+                or logs["method"] == "Network.requestWillBeSentExtraInfo"
+            ):
 
                 api_path = logs["params"].get('headers',{}).get(':path','')
-                if api_path != '' and count <= 5:
+                if api_path != '' and count <= 3:
                     logger.debug(f"See example logs: {logs}")
                 else:
                     pass
@@ -416,27 +419,26 @@ for match in tournament_games:
 
                 request_id = logs["params"]["requestId"]
 
-                for log in logs:
-                    if home_team_performance_api_url == api_path:
-                        logger.debug(f"📍✅   Match {home_team_performance_api_url} === {api_path}\n")
+                if home_team_performance_api_url == api_path:
+                    logger.debug(f"📍✅   Match {home_team_performance_api_url} === {api_path}\n")
 
-                        # Get the response body using the matched request ID
-                        try:
-                            perf_res_body = driver.execute_cdp_cmd('Network.getResponseBody',{"requestId": request_id})
-                            print("BODY:", perf_res_body["body"])
-                        except WebDriverException as err:
+                    # Get the response body using the matched request ID
+                    try:
+                        perf_res_body = driver.execute_cdp_cmd('Network.getResponseBody',{"requestId": request_id})
+                        print("BODY:", perf_res_body["body"])
+                    except WebDriverException as err:
                             logger.error(f"😫 Response.body is null."
                                          f"\nSee error:\n{err}", exc_info=True)
-                        except Exception as e:
-                            logger.error(f" Error encountered while attempting to retrieve"
-                                         f" and parse JSON from the API URL endpoint "
-                                         f"{home_team_performance_api_url}.\n"
-                                         f"\nSee error:\n{e}", exc_info=True)
-                        break
+                    except Exception as e:
+                        logger.error(f" Error encountered while attempting to retrieve"
+                                     f" and parse JSON from the API URL endpoint "
+                                     f"{home_team_performance_api_url}.\n"
+                                     f"\nSee error:\n{e}", exc_info=True)
+                    break
 
-                    else:
-                        logger.debug(f"❌ No match with API URL:"
-                                     f"{home_team_performance_api_url}\t!= {api_path}")
+                else:
+                    logger.debug(f"❌ No match with API URL:"
+                                 f"{home_team_performance_api_url}\t!= {api_path}")
 
         except Exception as e:
             logger.error(f" Unexpected Error encountered."

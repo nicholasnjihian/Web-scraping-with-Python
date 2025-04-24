@@ -17,7 +17,7 @@ This hobby project is solely for the purpose of learning.
 
 To get the project to execute, the following pre-conditions need to be met.
 
-* Create a Python virtual environment (venv).
+* Create a Python virtual environment (venv) (Assuming Ubuntu 24.04).
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3 python3-pip python3-venv

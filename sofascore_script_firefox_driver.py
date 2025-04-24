@@ -193,7 +193,7 @@ for scheduled_games in events['events']:
         logger.error("Key not found -> category['country']['name']")
         continue
     except Exception as e:
-        logger.error(f"Tournament is likely irrelevent. Check error:\n{e}",
+        logger.error(f"Tournament is likely irrelevant. Check error:\n{e}",
                      exc_info=True )
 
 
