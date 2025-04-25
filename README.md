@@ -17,7 +17,7 @@ This hobby project is solely for the purpose of learning.
 
 To get the project to execute, the following pre-conditions need to be met.
 
-* Create a Python virtual environment (venv) (Assuming Ubuntu 24.04).
+* Create a Python virtual environment (venv) **(Assuming Ubuntu 24.04)**.
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3 python3-pip python3-venv
@@ -30,7 +30,7 @@ source .soccer_venv/bin/activate
 * Install [GeckoDriver](https://github.com/mozilla/geckodriver/releases)
 * Install [selenium-wire](https://pypi.org/project/selenium-wire/)
 
-### Browsers
+### Browsers (Google Chrome & Firefox)
 In order for Selenium to be able to communicate with any browser, a browser
 driver is required. For Google Chrome, that'll be (as of writing this) ChromeDriver and for
 Firefox, that'll be GeckoDriver. The browser driver is required to interface
@@ -44,3 +44,14 @@ traffic, reading request/response headers or bodies or monitoring the DevTools
 Network tab, Selenium-wire will be used here. Selenium-wire adds network
 traffic capture. It can work with both Google Chrome and Firefox too.
 
+Please note that according to the [Seleniumwire GitHub page](https://github.com/wkeeling/selenium-wire), seleniumwire is no longer being maintained -it is deprecated since January 2024.
+
+#### Using Mitmproxy/mitmdump
+For simple web-scraping, mitmproxy is definitely overkill, but as this project
+is meant for learning how to use these tools, I will write code that uses
+mitmproxy too.
+
+#### Issues encountered:
+Chromedriver may have an unresolved issue that results in the JSON response
+body being NULL with an error: {"code":-32000,"message":"No resource with given identifier found"}.
+See the issue: https://issues.chromium.org/issues/42323468.
