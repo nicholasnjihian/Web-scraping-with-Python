@@ -51,7 +51,27 @@ For simple web-scraping, mitmproxy is definitely overkill, but as this project
 is meant for learning how to use these tools, I will write code that uses
 mitmproxy too.
 
+* Install [mitmproxy](https://docs.mitmproxy.org/stable/)
+```bash
+python3 -m pip install mitmproxy
+```
+
 #### Issues encountered:
 Chromedriver may have an unresolved issue that results in the JSON response
 body being NULL with an error: {"code":-32000,"message":"No resource with given identifier found"}.
 See the issue: https://issues.chromium.org/issues/42323468.
+And also here: https://github.com/SeleniumHQ/selenium/issues/12221
+
+
+To resolve the following error: `No module named _'blinker._saferef'_`
+as highlighted at the following link https://github.com/seleniumbase/SeleniumBase/issues/2782
+the following steps need to be followed:
+
+```bash
+python3 -m pip uninstall selenium-wire
+python3 -m pip uninstall blinker
+
+python3 -m pip install blinker==1.7.0
+python3 -m pip install selenium-wire
+python3 -m pip install --upgrade pip setuptools
+```
