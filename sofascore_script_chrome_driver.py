@@ -395,7 +395,7 @@ for match in tournament_games:
 
     driver.find_element("tag name", "body").send_keys(Keys.CONTROL, "r")
     driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-    time.sleep(1)
+    time.sleep(2)
     driver.execute_script("window.scrollTo(0, 0);")
     time.sleep(2)
 
@@ -404,44 +404,48 @@ for match in tournament_games:
     for log_entry_ht in log_entries_home_team:
         try:
             logs = json.loads(log_entry_ht["message"])["message"]
-            if (
-                logs["method"] == "Network.responseReceived"
-                or logs["method"] == "Network.requestWillBeSent"
-                or logs["method"] == "Network.requestWillBeSentExtraInfo"
-            ):
+#            if (
+#                logs["method"] == "Network.responseReceived"
+#                or logs["method"] == "Network.requestWillBeSent"
+#                or logs["method"] == "Network.requestWillBeSentExtraInfo"
+#            ):
 
-                api_path = logs["params"].get('headers',{}).get(':path','')
-                if api_path != '' and count <= 3:
-                    logger.debug(f"See example logs: {logs}")
-                else:
-                    pass
-                count+=1
+            api_path = logs["params"].get('headers',{}).get(':path','')
 
-                request_id = logs["params"]["requestId"]
+            if api_path != '' and count <= 3:
+                logger.debug(f"See example logs: {logs}")
+            else:
+                pass
+            count+=1
 
-                if home_team_performance_api_url == api_path:
-                    logger.debug(f"📍✅   Match {home_team_performance_api_url} === {api_path}\n")
+            request_id = logs["params"]["requestId"]
 
-                    # Get the response body using the matched request ID
-                    try:
-                        perf_res_body = driver.execute_cdp_cmd('Network.getResponseBody',{"requestId": request_id})
-                        print("BODY:", perf_res_body["body"])
-                    except WebDriverException as err:
-                            logger.error(f"😫 Response.body is null."
-                                         f"\nSee error:\n{err}", exc_info=True)
-                    except Exception as e:
-                        logger.error(f" Error encountered while attempting to retrieve"
-                                     f" and parse JSON from the API URL endpoint "
-                                     f"{home_team_performance_api_url}.\n"
-                                     f"\nSee error:\n{e}", exc_info=True)
-                    break
+            if home_team_performance_api_url == api_path:
+                logger.debug(f"📍✅   Match {home_team_performance_api_url}"
+                             f"===> {api_path}\n\n")
 
-                else:
-                    logger.debug(f"❌ No match with API URL:"
-                                 f"{home_team_performance_api_url}\t!= {api_path}")
+                logger.debug(f"The matching logs body == {logs}\n\n")
+                # Get the response body using the matched request ID
+                try:
+                    perf_res_body = driver.execute_cdp_cmd('Network.getResponseBody',{"requestId": request_id})
+                    print("BODY:", perf_res_body["body"])
+                except WebDriverException as err:
+                    logger.error(f"😫 Response.body is null."
+                                 f"\nSee error:\n{err}", exc_info=True)
+
+                except Exception as e:
+                    logger.error(f" ❌‼️  Error encountered while attempting to retrieve"
+                                 f" and parse JSON from the API URL endpoint "
+                                 f"{home_team_performance_api_url}.\n"
+                                 f"\nSee error:\n{e}", exc_info=True)
+                break
+
+            else:
+                logger.debug(f"❌‼️  No match with API URL:"
+                             f"{home_team_performance_api_url}\t!= {api_path}")
 
         except Exception as e:
-            logger.error(f" Unexpected Error encountered."
+            logger.error(f"❌‼️  Unexpected Error encountered."
                          f" See Error below:\n{e}", exc_info=True)
 
 

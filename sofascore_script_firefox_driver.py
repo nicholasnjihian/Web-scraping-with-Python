@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-from selenium import webdriver
+from seleniumwire import webdriver # Note: this replaces regular Selenium WebDriver
+
+from webdriver_manager.firefox import GeckoDriverManager
+
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
-from webdriver_manager.firefox import GeckoDriverManager
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -26,7 +28,7 @@ import glob
 
 
 # Enables capturing network logs
-options = webdriver.ChromeOptions()
+options = webdriver.FirefoxOptions()
 options.set_capability(
     'goog:loggingPrefs',{"performance":"ALL","browser":"ALL"}
 )
@@ -62,7 +64,7 @@ GECKODRIVER_PATH="/home/nicknjihia/Downloads/geckodriver-v0.36.0-linux64/geckodr
 service = FirefoxService(executable_path=GECKODRIVER_PATH)
 
 #driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
-driver = webdriver.Firefox(service=service)
+driver = webdriver.Firefox(service=service, options=options)
 
 
 driver.set_page_load_timeout(60)
