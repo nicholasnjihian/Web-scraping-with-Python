@@ -6,6 +6,11 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+
+
+profile_path = "/home/nicknjihia/.mozilla/firefox/tu9fim1g.default-release"
+firefox_profile = FirefoxProfile(profile_path)
 
 import json
 import time
@@ -28,7 +33,18 @@ options.headless = False  # Set to True if you want headless mode
 service = FirefoxService(executable_path=GeckoDriverManager().install())
 
 #driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
-driver = webdriver.Firefox(seleniumwire_options={}, service=service, options=options)
+driver = webdriver.Firefox(
+    firefox_profile=firefox_profile,
+    service=service,
+    options=options,
+    seleniumwire_options={
+        'proxy': {
+            'http': 'http://127.0.0.1:8080',
+            'https': 'http://127.0.0.1:8080',
+            'no_proxy': 'localhost,127.0.0.1'
+        }
+    }
+)
 
 
 tournament_games = []

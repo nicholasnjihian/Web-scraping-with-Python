@@ -17,7 +17,7 @@ This hobby project is solely for the purpose of learning.
 
 To get the project to execute, the following pre-conditions need to be met.
 
-* Create a Python virtual environment (venv) **(Assuming Ubuntu 24.04)**.
+* Create a Python virtual environment (`venv`) **(Assuming Ubuntu 24.04)**.
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3 python3-pip python3-venv
@@ -33,23 +33,22 @@ source .soccer_venv/bin/activate
 ### Browsers (Google Chrome & Firefox)
 In order for Selenium to be able to communicate with any browser, a browser
 driver is required. For Google Chrome, that'll be (as of writing this) ChromeDriver and for
-Firefox, that'll be GeckoDriver. The browser driver is required to interface
-between the WebDriver-enabled clients and the browser (Firefox, Chrome, Safari, Opera, Edge, IE) to execute the automation test scripts written in various programming languages (Python, Java, Ruby, JavaScript, .NET/C#, etc).
+Firefox, that'll be GeckoDriver.
+A browser driver is required to interface between the WebDriver-enabled clients and the browser (Firefox, Chrome, Safari, Opera, Edge, IE) to execute the automation test scripts written in various programming languages (Python, Java, Ruby, JavaScript, .NET/C#, etc).
 
 Selenium-wire extends Selenium’s Python bindings to give you access to the
 underlying requests made by the browser. You get extra APIs for inspecting
 requests and responses and making changes to them on the fly. Since
 GeckoDriverManager doesn't help with intercepting or capturing network
 traffic, reading request/response headers or bodies or monitoring the DevTools
-Network tab, Selenium-wire will be used here. Selenium-wire adds network
-traffic capture. It can work with both Google Chrome and Firefox too.
+Network tab, Selenium-wire or mitmproxy could be used.
+Selenium-wire adds network traffic capture. It can work with both Google Chrome and Firefox too.
 
 Please note that according to the [Seleniumwire GitHub page](https://github.com/wkeeling/selenium-wire), seleniumwire is no longer being maintained -it is deprecated since January 2024.
 
 #### Using Mitmproxy/mitmdump
 For simple web-scraping, mitmproxy is definitely overkill, but as this project
-is meant for learning how to use these tools, I will write code that uses
-mitmproxy too.
+is meant for learning how to use these tools, I include it as well.
 
 * Install [mitmproxy](https://docs.mitmproxy.org/stable/)
 ```bash
@@ -58,7 +57,7 @@ python3 -m pip install mitmproxy
 
 #### Issues encountered:
 Chromedriver may have an unresolved issue that results in the JSON response
-body being NULL with an error: {"code":-32000,"message":"No resource with given identifier found"}.
+body being NULL with an error: `{"code":-32000,"message":"No resource with given identifier found"}`.
 See the issue: https://issues.chromium.org/issues/42323468.
 And also here: https://github.com/SeleniumHQ/selenium/issues/12221
 
